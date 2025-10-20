@@ -4,17 +4,13 @@ import 'package:floor/floor.dart';
 @entity
 class Media {
   @primaryKey
-  final int? id;
-  final String path;
-  final String type; // 'photo' or 'video'
-  final int? albumId;
-  final DateTime? deletedAt;
+  final String id;
 
-  Media({
-    this.id,
-    required this.path,
-    required this.type,
-    this.albumId,
-    this.deletedAt,
-  });
+  final String albumId;
+
+  final DateTime creationDate;
+
+  final String? path;
+
+  Media(this.id, this.albumId, this.creationDate, this.path);
 }

@@ -4,17 +4,11 @@ import 'package:floor/floor.dart';
 @entity
 class Album {
   @primaryKey
-  final int? id;
-  final String name;
-  final String? coverPath;
-  final bool isPremium;
-  final DateTime createdAt;
+  final String id;
 
-  Album({
-    this.id,
-    required this.name,
-    this.coverPath,
-    this.isPremium = false,
-    required this.createdAt,
-  });
+  final String name;
+
+  final int count;
+
+  Album(this.id, this.name, this.count);
 }
