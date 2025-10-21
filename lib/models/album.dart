@@ -1,18 +1,26 @@
+import 'package:floor/floor.dart';
 
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter/foundation.dart';
-import 'package:sparkle/models/media.dart';
+@entity
+class Album {
+  @primaryKey(autoGenerate: true)
+  final int? id;
 
-part 'album.freezed.dart';
-part 'album.g.dart';
+  final String name;
 
-@freezed
-class Album with _$Album {
-  const factory Album({
-    required String name,
-    required List<Media> media,
-    required String coverImage,
-  }) = _Album;
+  @ColumnInfo(name: 'cover_path')
+  final String? coverPath;
 
-  factory Album.fromJson(Map<String, dynamic> json) => _$AlbumFromJson(json);
+  @ColumnInfo(name: 'is_premium')
+  final bool isPremium;
+
+  @ColumnInfo(name: 'created_at')
+  final DateTime createdAt;
+
+  Album({
+    this.id,
+    required this.name,
+    this.coverPath,
+    this.isPremium = false,
+    required this.createdAt,
+  });
 }

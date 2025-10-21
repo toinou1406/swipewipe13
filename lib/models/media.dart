@@ -1,18 +1,25 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter/foundation.dart';
+import 'package:floor/floor.dart';
 
-part 'media.freezed.dart';
-part 'media.g.dart';
+@entity
+class Media {
+  @primaryKey(autoGenerate: true)
+  final int? id;
 
-@freezed
-class Media with _$Media {
-  const factory Media({
-    required String id,
-    required String file,
-    required String thumbnail,
-    required bool isFavorite,
-    String? album,
-  }) = _Media;
+  final String path;
 
-  factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
+  final String type; // 'photo' or 'video'
+
+  @ColumnInfo(name: 'album_id')
+  final int? albumId;
+
+  @ColumnInfo(name: 'deleted_at')
+  final DateTime? deletedAt;
+
+  Media({
+    this.id,
+    required this.path,
+    required this.type,
+    this.albumId,
+    this.deletedAt,
+  });
 }
