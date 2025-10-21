@@ -1,5 +1,5 @@
 import 'package:floor/floor.dart';
-import 'package:sparkle/models/album.dart';
+import 'package:swipe_clean/models/album.dart';
 
 @dao
 abstract class AlbumDao {
@@ -8,10 +8,4 @@ abstract class AlbumDao {
 
   @insert
   Future<void> insertAlbum(Album album);
-
-  @update
-  Future<void> updateAlbum(Album album);
-
-  @delete
-  Future<void> deleteAlbum(Album album);
 }

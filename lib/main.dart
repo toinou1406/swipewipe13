@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:sparkle/utils/theme.dart';
-import 'package:sparkle/utils/router.dart';
+import 'package:swipe_clean/utils/theme.dart';
+import 'package:swipe_clean/screens/home_screen.dart';
 
 void main() {
-  runApp(const SparkleApp());
+  runApp(const SwipeCleanApp());
 }
 
-class SparkleApp extends StatelessWidget {
-  const SparkleApp({super.key});
+class SwipeCleanApp extends StatelessWidget {
+  const SwipeCleanApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router,
-      title: 'Sparkle',
-      theme: darkTheme,
+    return MaterialApp(
+      title: 'SwipeClean',
+      theme: AppTheme.darkTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      home: const HomeScreen(),
     );
   }
 }

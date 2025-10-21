@@ -2,25 +2,10 @@ import 'package:floor/floor.dart';
 
 @entity
 class Album {
-  @primaryKey(autoGenerate: true)
-  final int? id;
-
+  @primaryKey
+  final String id;
   final String name;
+  final int count;
 
-  @ColumnInfo(name: 'cover_path')
-  final String? coverPath;
-
-  @ColumnInfo(name: 'is_premium')
-  final bool isPremium;
-
-  @ColumnInfo(name: 'created_at')
-  final DateTime createdAt;
-
-  Album({
-    this.id,
-    required this.name,
-    this.coverPath,
-    this.isPremium = false,
-    required this.createdAt,
-  });
+  Album({required this.id, required this.name, required this.count});
 }

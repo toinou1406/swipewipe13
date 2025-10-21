@@ -2,24 +2,18 @@ import 'package:floor/floor.dart';
 
 @entity
 class Media {
-  @primaryKey(autoGenerate: true)
-  final int? id;
-
+  @primaryKey
+  final String id;
+  final String albumId;
   final String path;
-
-  final String type; // 'photo' or 'video'
-
-  @ColumnInfo(name: 'album_id')
-  final int? albumId;
-
-  @ColumnInfo(name: 'deleted_at')
-  final DateTime? deletedAt;
+  final String type;
+  final DateTime creationDate;
 
   Media({
-    this.id,
+    required this.id,
+    required this.albumId,
     required this.path,
     required this.type,
-    this.albumId,
-    this.deletedAt,
+    required this.creationDate,
   });
 }

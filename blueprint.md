@@ -1,36 +1,43 @@
-# Sparkle: A Photo Gallery App
+# Swipe Clean - Blueprint
 
 ## Overview
 
-Sparkle is a beautiful and intuitive photo gallery app for Flutter. It allows you to browse and view your photos in a clean and modern interface.
+Swipe Clean is a mobile application designed to help users efficiently manage and clean up their photo library. The core feature of the app is a "swipe-to-delete" interface, allowing users to quickly go through their photos and decide which ones to keep and which to delete.
 
-## Features
+## Style, Design, and Features
 
-*   **Modern UI:** Sparkle features a sleek and modern dark theme with a custom font.
-*   **Gallery View:** Browse all your photos in a beautiful grid view.
-*   **Image Viewer:** Tap on any photo to view it in full screen.
-*   **Album View:** Organize your photos by albums.
+### Version 1.0 (Initial Setup)
 
-## Project Structure
+*   **Theme:**
+    *   Material 3 design with a consistent color scheme.
+    *   Support for both light and dark modes.
+    *   Custom typography using `google_fonts`.
+*   **Architecture:**
+    *   Provider for state management.
+    *   go_router for navigation.
+    *   Feature-first project structure.
+*   **Core Features:**
+    *   Requesting photo library permissions.
+    *   Fetching and displaying photo albums.
 
-```
-lib
-├── main.dart
-├── screens
-│   ├── album_details_screen.dart
-│   ├── album_screen.dart
-│   ├── home_screen.dart
-│   └── media_viewer_screen.dart
-└── utils
-    ├── router.dart
-    └── theme.dart
-```
+### Version 1.1 (Swipe-to-Delete)
+
+*   **Photo Viewer:**
+    *   A dedicated screen (`PhotoViewerScreen`) to display photos from an album.
+*   **Swipe Gestures:**
+    *   Swipe right to keep a photo.
+    *   Swipe left to mark a photo for deletion.
+*   **Visual Feedback:**
+    *   As the user swipes, a colored overlay (green for keep, red for delete) with an icon provides immediate visual feedback.
+*   **Undo Functionality:**
+    *   An "Undo" button in the `AppBar` allows the user to reverse their last swipe.
+*   **Deletion Confirmation:**
+    *   After swiping through all photos, a dialog appears to confirm the permanent deletion of the marked photos.
 
 ## Current Plan
 
-I have completed the core features of the app. The next steps would be to add more advanced features, such as:
+The core functionality of the application is complete. The next steps will focus on refining the user interface and user experience.
 
-*   **Video support:** Allow users to view videos in the app.
-*   **Favorites:** Allow users to mark photos as favorites.
-*   **Search:** Implement a search functionality to find photos by date, location, or other metadata.
-*   **Editing tools:** Add basic editing tools, such as cropping, rotating, and applying filters.
+*   **UI Polish:** Improve the overall design and aesthetics of the application.
+*   **Animations:** Add smooth transitions and animations to enhance the user experience.
+*   **Settings:** Implement a settings screen to allow users to customize the app's behavior.

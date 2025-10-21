@@ -1,87 +1,83 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:swipe_clean/models/media.dart';
+import 'package:swipe_clean/services/media_service.dart';
 
 class SwipeScreen extends StatefulWidget {
-  const SwipeScreen({super.key});
+  final List<Media> media;
+  final int initialIndex;
+  final MediaService mediaService;
+
+  const SwipeScreen(
+      {Key? key,
+      required this.media,
+      required this.initialIndex,
+      required this.mediaService})
+      : super(key: key);
 
   @override
-  State<SwipeScreen> createState() => _SwipeScreenState();
+  _SwipeScreenState createState() => _SwipeScreenState();
 }
 
 class _SwipeScreenState extends State<SwipeScreen> {
-  // Mock data for media
-  final List<String> _media = [
-    'https://picsum.photos/seed/1/600/800',
-    'https://picsum.photos/seed/2/600/800',
-    'https://picsum.photos/seed/3/600/800',
-    'https://picsum.photos/seed/4/600/800',
-    'https://picsum.photos/seed/5/600/800',
-  ];
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  void _onSwipe(bool keep) {
+    if (keep) {
+      // Just move to the next photo
+      if (_currentIndex < widget.media.length - 1) {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    } else {
+      // Delete the photo and move to the next one
+      widget.mediaService.deleteMedia(widget.media[_currentIndex]);
+      setState(() {
+        widget.media.removeAt(_currentIndex);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Swipe to Sort'),
-        centerTitle: true,
+        title: const Text('Swipe to Clean'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              itemCount: _media.length,
-              itemBuilder: (context, index) {
-                return _buildMediaItem(_media[index]);
-              },
-            ),
-          ),
-          _buildActionButtons(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMediaItem(String imageUrl) {
-    return Container(
-      margin: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        image: DecorationImage(
-          image: NetworkImage(imageUrl),
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          ElevatedButton.icon(
-            onPressed: () {
-              // Handle move to album
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.media.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) {
+          final medium = widget.media[index];
+          return Dismissible(
+            key: Key(medium.id),
+            onDismissed: (direction) {
+              _onSwipe(direction == DismissDirection.startToEnd);
             },
-            icon: const Icon(Icons.folder),
-            label: const Text('Move to Album'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF333333),
-              foregroundColor: Colors.white,
+            child: Center(
+              child: Image.file(
+                File(medium.path),
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              // Handle delete
-            },
-            icon: const Icon(Icons.delete),
-            label: const Text('Delete'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
