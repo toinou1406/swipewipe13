@@ -1,16 +1,18 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
-import 'package:floor/floor.dart';
+part 'media.freezed.dart';
+part 'media.g.dart';
 
-@entity
-class Media {
-  @primaryKey
-  final String id;
+@freezed
+class Media with _$Media {
+  const factory Media({
+    required String id,
+    required String file,
+    required String thumbnail,
+    required bool isFavorite,
+    String? album,
+  }) = _Media;
 
-  final String albumId;
-
-  final DateTime creationDate;
-
-  final String? path;
-
-  Media(this.id, this.albumId, this.creationDate, this.path);
+  factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
 }

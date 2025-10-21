@@ -1,14 +1,18 @@
 
-import 'package:floor/floor.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
+import 'package:sparkle/models/media.dart';
 
-@entity
-class Album {
-  @primaryKey
-  final String id;
+part 'album.freezed.dart';
+part 'album.g.dart';
 
-  final String name;
+@freezed
+class Album with _$Album {
+  const factory Album({
+    required String name,
+    required List<Media> media,
+    required String coverImage,
+  }) = _Album;
 
-  final int count;
-
-  Album(this.id, this.name, this.count);
+  factory Album.fromJson(Map<String, dynamic> json) => _$AlbumFromJson(json);
 }
