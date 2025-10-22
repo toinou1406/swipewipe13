@@ -352,6 +352,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.3"
+  go_router:
+    dependency: "direct main"
+    description:
+      name: go_router
+      sha256: e1d7ffb0db475e6e845eb58b44768f50b830e23960e3df6908924acd8f7f70ea
+      url: "https://pub.dev"
+    source: hosted
+    version: "16.2.5"
+  google_fonts:
+    dependency: "direct main"
+    description:
+      name: google_fonts
+      sha256: "517b20870220c48752eafa0ba1a797a092fb22df0d89535fd9991e86ee2cdd9c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.2"
   graphs:
     dependency: transitive
     description:
@@ -361,7 +377,7 @@ packages:
     source: hosted
     version: "2.3.2"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: bb2ce4590bc2667c96f318d68cac1b5a7987ec819351d32b1c987239a815e007
@@ -624,6 +640,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.7.1"
+  photo_view:
+    dependency: "direct main"
+    description:
+      name: photo_view
+      sha256: "1fc3d970a91295fbd1364296575f854c9863f225505c28c46e0a03e48960c75e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.0"
   platform:
     dependency: transitive
     description:
@@ -885,6 +909,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.1"
+  storage_space:
+    dependency: "direct main"
+    description:
+      name: storage_space
+      sha256: "8a3fbc61c20ce3b926b663b4ae77064e2bc5351a49756a41fa415e302f4063cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   stream_channel:
     dependency: transitive
     description:
@@ -917,6 +949,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  swipe_cards:
+    dependency: "direct main"
+    description:
+      name: swipe_cards
+      sha256: c34f28e71e3d4041455aaff49ac4242a79cad0e7d0ec16978f871059f3d956e3
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0+1"
   synchronized:
     dependency: transitive
     description:

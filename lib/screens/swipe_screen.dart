@@ -1,81 +1,148 @@
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:swipe_clean/models/media.dart';
-import 'package:swipe_clean/services/media_service.dart';
+import 'package:go_router/go_router.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:swipe_cards/swipe_cards.dart';
+import '../services/media_service.dart';
 
 class SwipeScreen extends StatefulWidget {
-  final List<Media> media;
-  final int initialIndex;
-  final MediaService mediaService;
+  const SwipeScreen({super.key, required this.category});
 
-  const SwipeScreen(
-      {Key? key,
-      required this.media,
-      required this.initialIndex,
-      required this.mediaService})
-      : super(key: key);
+  final String category;
 
   @override
-  _SwipeScreenState createState() => _SwipeScreenState();
+  State<SwipeScreen> createState() => _SwipeScreenState();
 }
 
 class _SwipeScreenState extends State<SwipeScreen> {
-  late PageController _pageController;
-  late int _currentIndex;
+  late final MediaService _mediaService;
+  late Future<List<AssetEntity>> _mediaFuture;
+  final List<SwipeItem> _swipeItems = [];
+  late MatchEngine _matchEngine;
+  final List<AssetEntity> _keptItems = [];
+  final List<AssetEntity> _deletedItems = [];
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
-    _pageController = PageController(initialPage: _currentIndex);
+    _mediaService = MediaService();
+    _mediaFuture = _loadMedia();
   }
 
-  void _onSwipe(bool keep) {
-    if (keep) {
-      // Just move to the next photo
-      if (_currentIndex < widget.media.length - 1) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    } else {
-      // Delete the photo and move to the next one
-      widget.mediaService.deleteMedia(widget.media[_currentIndex]);
-      setState(() {
-        widget.media.removeAt(_currentIndex);
-      });
+  Future<List<AssetEntity>> _loadMedia() async {
+    final media = await _mediaService.getMedia(widget.category);
+    _swipeItems.clear();
+    for (var asset in media) {
+      _swipeItems.add(SwipeItem(
+        content: asset,
+        likeAction: () {
+          _keptItems.add(asset);
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Kept"), duration: Duration(milliseconds: 500)));
+        },
+        nopeAction: () {
+          _deletedItems.add(asset);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("To be deleted"), duration: Duration(milliseconds: 500)));
+        },
+      ));
     }
+    _matchEngine = MatchEngine(swipeItems: _swipeItems);
+    return media;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Swipe to Clean'),
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.media.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          final medium = widget.media[index];
-          return Dismissible(
-            key: Key(medium.id),
-            onDismissed: (direction) {
-              _onSwipe(direction == DismissDirection.startToEnd);
+        title: Text('Swipe - ${widget.category}'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done),
+            onPressed: () {
+              context.push('/review', extra: _deletedItems);
             },
-            child: Center(
-              child: Image.file(
-                File(medium.path),
-                fit: BoxFit.contain,
+          )
+        ],
+      ),
+      body: FutureBuilder<List<AssetEntity>>(
+        future: _mediaFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No media found.'));
+          }
+
+          return Stack(
+            children: [
+              SwipeCards(
+                matchEngine: _matchEngine,
+                itemBuilder: (BuildContext context, int index) {
+                  final asset = _swipeItems[index].content as AssetEntity;
+                  return FutureBuilder<File?>(
+                    future: asset.file,
+                    builder: (context, fileSnapshot) {
+                      if (fileSnapshot.connectionState == ConnectionState.done &&
+                          fileSnapshot.data != null) {
+                        return Container(
+                          alignment: Alignment.center,
+                          child: Image.file(
+                            fileSnapshot.data!,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      }
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  );
+                },
+                onStackFinished: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("All items swiped!")));
+                },
+                itemChanged: (SwipeItem item, int index) {},
+                upSwipeAllowed: false,
+                fillSpace: true,
               ),
-            ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _matchEngine.currentItem?.nope();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(20),
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _matchEngine.currentItem?.like();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(20),
+                          backgroundColor: Colors.green,
+                        ),
+                        child: const Icon(Icons.check, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
           );
         },
       ),

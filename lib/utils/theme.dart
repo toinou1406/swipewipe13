@@ -3,70 +3,29 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
+    primaryColor: Colors.black,
     scaffoldBackgroundColor: Colors.black,
-    primaryColor: Colors.deepPurple,
-
-    // Text Theme
     textTheme: const TextTheme(
-      headline1: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-      bodyText1: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.white),
-      bodyText2: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.grey),
+      displayLarge: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+      bodyLarge: TextStyle(color: Colors.white, fontSize: 16),
+      bodyMedium: TextStyle(color: Color(0xFF808080), fontSize: 14),
     ),
-
-    // Button Theme
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
+    iconTheme: const IconThemeData(color: Colors.white),
+    buttonTheme: const ButtonThemeData(
+      buttonColor: Colors.white,
+      textTheme: ButtonTextTheme.primary,
     ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: const BorderSide(color: Colors.deepPurple),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-      ),
-    ),
-
-    // AppBar Theme
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.deepPurple,
-      elevation: 0,
-      iconTheme: IconThemeData(color: Colors.white),
-      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-    ),
-
-    // Card Theme
-    cardTheme: CardTheme(
-      color: Colors.grey[900],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-    ),
-
-    // Icon Theme
-    iconTheme: const IconThemeData(
-      color: Colors.white,
-      size: 24,
-    ),
-
-    // Progress Indicator Theme
     progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: Colors.deepPurple,
-      linearTrackColor: Colors.grey,
+      color: Colors.white,
+      linearTrackColor: Color(0xFF333333),
     ),
-    
-    // Floating Action Button Theme
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Colors.deepPurple,
-      foregroundColor: Colors.white,
+    inputDecorationTheme: const InputDecorationTheme(
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF333333)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF808080)),
+      ),
     ),
   );
 }

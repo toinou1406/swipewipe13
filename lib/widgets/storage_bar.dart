@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StorageBar extends StatelessWidget {
-  final double totalSpace; // in GB
+  final double totalSpace;
   final double usedSpace;
   final double freedSpace;
 
@@ -14,41 +14,25 @@ class StorageBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildProgressBar(
-          value: usedSpace / totalSpace,
-          label: '${usedSpace.toStringAsFixed(1)} GB / ${totalSpace.toStringAsFixed(1)} GB',
-          color: Colors.white,
-          context: context,
-        ),
-        const SizedBox(height: 8),
-        _buildProgressBar(
-          value: freedSpace / totalSpace,
-          label: '+${freedSpace.toStringAsFixed(1)} GB freed this month',
-          color: Colors.grey[500]!,
-          context: context,
-        ),
-      ],
-    );
-  }
+    final double usedPercentage = usedSpace / totalSpace;
 
-  Widget _buildProgressBar({
-    required double value,
-    required String label,
-    required Color color,
-    required BuildContext context,
-  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodyMedium),
-        const SizedBox(height: 4),
+        const Text('Your Storage'),
+        const SizedBox(height: 8),
         LinearProgressIndicator(
-          value: value,
-          backgroundColor: const Color(0xFF333333),
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-          minHeight: 10,
+          value: usedPercentage,
+          minHeight: 12,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('${usedSpace.toStringAsFixed(1)} GB of ${totalSpace.toStringAsFixed(0)} GB used'),
+            Text('${freedSpace.toStringAsFixed(1)} GB freed'),
+          ],
         ),
       ],
     );
