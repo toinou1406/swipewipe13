@@ -1,18 +1,20 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:photo_gallery/photo_gallery.dart';
+import './swipe_screen.dart';
 
 class AlbumDetailScreen extends StatefulWidget {
-  final String albumId;
+  final String albumName;
 
-  const AlbumDetailScreen({super.key, required this.albumId});
+  const AlbumDetailScreen({super.key, required this.albumName});
 
   @override
-  _AlbumDetailScreenState createState() => _AlbumDetailScreenState();
+  State<AlbumDetailScreen> createState() => _AlbumDetailScreenState();
 }
 
 class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   List<Medium> _media = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -21,18 +23,19 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   }
 
   Future<void> _loadAlbumMedia() async {
+    setState(() => _isLoading = true);
     try {
-      final Album album = (await PhotoGallery.listAlbums(
-        mediumType: MediumType.image,
-      ))
-          .firstWhere((album) => album.id == widget.albumId);
-
-      final MediaPage mediaPage = await album.listMedia();
+      final albums = await PhotoGallery.listAlbums(mediumType: MediumType.image);
+      final album = albums.firstWhere((a) => a.name == widget.albumName, orElse: () => albums.first);
+      
+      final mediaPage = await album.listMedia();
       setState(() {
         _media = mediaPage.items;
+        _isLoading = false;
       });
     } catch (e) {
-      print('Failed to load album media: $e');
+      debugPrint('Failed to load album media: $e');
+      setState(() => _isLoading = false);
     }
   }
 
@@ -40,26 +43,25 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Photos'),
+        title: Text(widget.albumName),
       ),
-      body: _media.isEmpty
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : GridView.builder(
+              padding: const EdgeInsets.all(8.0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                crossAxisSpacing: 4.0,
-                mainAxisSpacing: 4.0,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
               ),
               itemCount: _media.length,
               itemBuilder: (context, index) {
-                final medium = _media[index];
                 return FutureBuilder<File>(
-                  future: medium.getFile(),
+                  future: _media[index].getFile(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
-                      return Image.file(
-                        snapshot.data!,
-                        fit: BoxFit.cover,
+                      return GridTile(
+                        child: Image.file(snapshot.data!, fit: BoxFit.cover),
                       );
                     } else {
                       return const Center(child: CircularProgressIndicator());
@@ -68,6 +70,17 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                 );
               },
             ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const SwipeScreen(isFromAlbum: true),
+            ),
+          );
+        },
+        label: const Text('Ajouter des photos'),
+        icon: const Icon(Icons.add_photo_alternate_outlined),
+      ),
     );
   }
 }

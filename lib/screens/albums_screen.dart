@@ -1,93 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:photo_gallery/photo_gallery.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:go_router/go_router.dart';
+import './album_detail_screen.dart';
+
+class Album {
+  final String name;
+  final IconData icon;
+
+  Album({required this.name, required this.icon});
+}
 
 class AlbumsScreen extends StatefulWidget {
   const AlbumsScreen({super.key});
 
   @override
-  _AlbumsScreenState createState() => _AlbumsScreenState();
+  State<AlbumsScreen> createState() => _AlbumsScreenState();
 }
 
 class _AlbumsScreenState extends State<AlbumsScreen> {
-  List<Album> _albums = [];
+  final List<Album> _albums = [
+    Album(name: 'Favoris', icon: Icons.favorite_border),
+    Album(name: 'Archives', icon: Icons.archive_outlined),
+    Album(name: 'À trier plus tard', icon: Icons.lightbulb_outline),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _requestPermissionAndLoadAlbums();
+  void _renameAlbum(Album album) {
+    final controller = TextEditingController(text: album.name);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Renommer l'album'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Annuler')),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  final index = _albums.indexOf(album);
+                  _albums[index] = Album(name: controller.text, icon: album.icon);
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Renommer'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  Future<void> _requestPermissionAndLoadAlbums() async {
-    if (await Permission.photos.request().isGranted) {
-      _loadAlbums();
-    }
-  }
-
-  Future<void> _loadAlbums() async {
-    try {
-      final List<Album> albums = await PhotoGallery.listAlbums(
-        mediumType: MediumType.image,
-      );
-      setState(() {
-        _albums = albums;
-      });
-    } catch (e) {
-      print('Failed to load albums: $e');
-    }
+  void _viewAlbum(Album album) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AlbumDetailScreen(albumName: album.name),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Albums'),
+        title: const Text('Mes Albums'),
       ),
-      body: _albums.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 4.0,
-                mainAxisSpacing: 4.0,
-              ),
-              itemCount: _albums.length,
-              itemBuilder: (context, index) {
-                final album = _albums[index];
-                return GestureDetector(
-                  onTap: () => context.go('/albums/${album.id}'),
-                  child: Column(
-                    children: [
-                      FutureBuilder<Medium>(
-                        future: album.listMedia().then((media) => media.items.first),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return FutureBuilder<File>(
-                              future: snapshot.data!.getFile(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return Image.file(
-                                    snapshot.data!,
-                                    fit: BoxFit.cover,
-                                    height: 150,
-                                  );
-                                } else {
-                                  return const CircularProgressIndicator();
-                                }
-                              },
-                            );
-                          } else {
-                            return const CircularProgressIndicator();
-                          }
-                        },
-                      ),
-                      Text(album.name ?? 'Unnamed Album'),
-                    ],
-                  ),
-                );
-              },
-            ),
+      body: ListView.builder(
+        itemCount: _albums.length,
+        itemBuilder: (context, index) {
+          final album = _albums[index];
+          return ListTile(
+            leading: Icon(album.icon, size: 32),
+            title: Text(album.name, style: const TextStyle(fontSize: 18)),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () => _viewAlbum(album),
+            onLongPress: () => _renameAlbum(album),
+          );
+        },
+      ),
     );
   }
 }
