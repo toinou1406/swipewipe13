@@ -1,47 +1,24 @@
-# SwipeClean App Blueprint
+# Blueprint de l'Application Photo Cleaner
 
-## Overview
+## Aperçu
 
-SwipeClean is a Flutter application designed to help users efficiently manage their phone's storage. It provides a simple, Tinder-like swipe interface for users to quickly decide whether to keep or delete photos, videos, and screenshots.
+Cette application permet aux utilisateurs de nettoyer et de gérer facilement l'espace de stockage de leur appareil en supprimant des photos. Elle fournit une interface intuitive pour visualiser le stockage, parcourir les albums et supprimer des photos via une mécanique de "swipe".
 
-## Features & Design
+## Style, Design et Fonctionnalités
 
-*   **Modern UI:** A clean and intuitive user interface built with Material Design 3 components.
-*   **Theming:** Supports both light and dark modes with a consistent color scheme and typography using `google_fonts`.
-*   **Navigation:** A bottom navigation bar for easy access to the main screens (Home, Review, Settings) and a router (`go_router`) for managing navigation.
-*   **Media Categories:** Users can choose to manage "All Photos," "Screenshots," or "Videos."
-*   **Swipe Interface:** A card-based swipe interface (`swipe_cards`) for quickly deciding on each media item.
-*   **Review & Delete:** A dedicated screen to review all items marked for deletion before permanently removing them.
-*   **Permissions Handling:** The app will request the necessary permissions to access the user's media library.
+### Version Finale
 
-## Plan
-
-1.  **Project Setup & Scaffolding:**
-    *   Add necessary dependencies: `go_router`, `provider`, `google_fonts`, `photo_manager`, `swipe_cards`.
-    *   Create the basic file structure for the screens: `home_screen.dart`, `swipe_screen.dart`, `review_screen.dart`, `settings_screen.dart`.
-    *   Create `scaffold_with_nav_bar.dart` for the main navigation structure.
-    *   Update `main.dart` with theme setup, provider, and initial `GoRouter` configuration.
-
-2.  **Implement Core UI Screens:**
-    *   Build the `HomeScreen` with category selection buttons.
-    *   Create placeholder UI for `SwipeScreen`, `ReviewScreen`, and `SettingsScreen`.
-    *   Integrate the `ScaffoldWithNavBar` using a `ShellRoute` in `go_router`.
-
-3.  **Develop Media Service:**
-    *   Create `services/media_service.dart`.
-    *   Implement `MediaService` to handle fetching and deleting media using the `photo_manager` package.
-    *   Include permission request logic.
-
-4.  **Build Swipe Functionality:**
-    *   Integrate `MediaService` into `SwipeScreen`.
-    *   Use `swipe_cards` to display media and handle swipe gestures.
-    *   Track items to be kept or deleted.
-    *   Navigate to the `ReviewScreen` with the list of items to be deleted.
-
-5.  **Finalize Review and Delete Process:**
-    *   Display the selected items in `ReviewScreen`.
-    *   Implement the final delete functionality.
-    *   Provide user feedback on the deletion process.
-
-6.  **Add Settings:**
-    *   Implement a theme toggle in the `SettingsScreen`.
+- **Architecture** : L'application utilise une architecture basée sur les fonctionnalités, avec des écrans séparés pour chaque fonctionnalité principale (accueil, swipe, albums).
+- **Gestion d'état** : `provider` est utilisé pour la gestion d'état, notamment pour le changement de thème.
+- **Navigation** : La navigation est gérée de manière déclarative à l'aide de `go_router`, permettant une navigation fluide entre l'écran d'accueil, l'écran de swipe, l'écran des albums et l'écran de détail des albums.
+- **Thème** : L'application prend en charge les thèmes clair et sombre, avec un sélecteur dans la barre d'applications. La typographie est améliorée avec `google_fonts`.
+- **Écrans** :
+  - **HomeScreen** : Affiche des indicateurs de pourcentage pour l'utilisation du stockage et l'espace nettoyé. Contient un bouton pour accéder à l'écran de swipe et une icône pour accéder à l'écran des albums.
+  - **SwipeScreen** : Charge et affiche les photos de la galerie de l'utilisateur. Permet aux utilisateurs de supprimer des photos en les balayant, libérant ainsi de l'espace de stockage.
+  - **AlbumsScreen** : Affiche une grille des albums photo de l'utilisateur. Un clic sur un album navigue vers l'écran de détail de l'album.
+  - **AlbumDetailScreen** : Affiche une grille des photos contenues dans un album spécifique.
+- **Fonctionnalités Clés** :
+  - **Visualisation du stockage** : L'écran d'accueil donne un aperçu rapide de l'espace de stockage utilisé et disponible.
+  - **Nettoyage par balayage** : L'écran de swipe offre une manière ludique et efficace de passer en revue et de supprimer des photos.
+  - **Navigation dans la galerie** : Les utilisateurs peuvent facilement parcourir leurs albums et voir les photos qu'ils contiennent.
+  - **Suppression de fichiers** : L'application supprime réellement les fichiers de l'appareil, ce qui n'est pas seulement une suppression dans l'application.

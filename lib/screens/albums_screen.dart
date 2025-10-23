@@ -1,24 +1,41 @@
-
 import 'package:flutter/material.dart';
+import 'package:photo_gallery/photo_gallery.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager/photo_manager.dart';
-import 'package:swipe_clean/services/media_service.dart';
 
 class AlbumsScreen extends StatefulWidget {
   const AlbumsScreen({super.key});
 
   @override
-  State<AlbumsScreen> createState() => _AlbumsScreenState();
+  _AlbumsScreenState createState() => _AlbumsScreenState();
 }
 
 class _AlbumsScreenState extends State<AlbumsScreen> {
-  final MediaService _mediaService = MediaService();
-  Future<List<AssetPathEntity>>? _albumsFuture;
+  List<Album> _albums = [];
 
   @override
   void initState() {
     super.initState();
-    _albumsFuture = _mediaService.getAlbums();
+    _requestPermissionAndLoadAlbums();
+  }
+
+  Future<void> _requestPermissionAndLoadAlbums() async {
+    if (await Permission.photos.request().isGranted) {
+      _loadAlbums();
+    }
+  }
+
+  Future<void> _loadAlbums() async {
+    try {
+      final List<Album> albums = await PhotoGallery.listAlbums(
+        mediumType: MediumType.image,
+      );
+      setState(() {
+        _albums = albums;
+      });
+    } catch (e) {
+      print('Failed to load albums: $e');
+    }
   }
 
   @override
@@ -27,44 +44,50 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
       appBar: AppBar(
         title: const Text('Albums'),
       ),
-      body: FutureBuilder<List<AssetPathEntity>>(
-        future: _albumsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No albums found.'));
-          }
-
-          final albums = snapshot.data!;
-          return ListView.builder(
-            itemCount: albums.length,
-            itemBuilder: (context, index) {
-              final album = albums[index];
-              return ListTile(
-                title: Text(album.name),
-                subtitle: FutureBuilder<int>(
-                  future: album.assetCountAsync,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Text('${snapshot.data} items');
-                    } else {
-                      return const Text('...');
-                    }
-                  },
-                ),
-                onTap: () {
-                  context.go('/album/${album.id}', extra: album);
-                },
-              );
-            },
-          );
-        },
-      ),
+      body: _albums.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 4.0,
+                mainAxisSpacing: 4.0,
+              ),
+              itemCount: _albums.length,
+              itemBuilder: (context, index) {
+                final album = _albums[index];
+                return GestureDetector(
+                  onTap: () => context.go('/albums/${album.id}'),
+                  child: Column(
+                    children: [
+                      FutureBuilder<Medium>(
+                        future: album.listMedia().then((media) => media.items.first),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return FutureBuilder<File>(
+                              future: snapshot.data!.getFile(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Image.file(
+                                    snapshot.data!,
+                                    fit: BoxFit.cover,
+                                    height: 150,
+                                  );
+                                } else {
+                                  return const CircularProgressIndicator();
+                                }
+                              },
+                            );
+                          } else {
+                            return const CircularProgressIndicator();
+                          }
+                        },
+                      ),
+                      Text(album.name ?? 'Unnamed Album'),
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 }

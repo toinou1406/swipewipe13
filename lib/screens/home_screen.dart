@@ -1,18 +1,22 @@
-
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:storage_space/storage_space.dart';
+import 'package:myapp/services/theme_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  double? _totalSpace;
-  double? _freeSpace;
+  double _totalSpace = 0;
+  double _freeSpace = 0;
+  double _usedSpace = 0;
+  final double _cleanedSpaceThisMonth = 15.2; // Mock data for now
 
   @override
   void initState() {
@@ -21,102 +25,110 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initStorageSpace() async {
-    StorageSpace storageSpace = await getStorageSpace(
-      lowOnSpaceThreshold: 0,
-      fractionDigits: 2,
-    );
-    setState(() {
-      _totalSpace = double.tryParse(storageSpace.totalSize);
-      _freeSpace = double.tryParse(storageSpace.freeSize);
-    });
+    try {
+      StorageSpace storageSpace = await getStorageSpace(
+        lowOnSpaceThreshold: 0,
+        fractionDigits: 2,
+      );
+      setState(() {
+        _totalSpace = storageSpace.totalSize;
+        _freeSpace = storageSpace.freeSize;
+        _usedSpace = _totalSpace - _freeSpace;
+      });
+    } catch (e) {
+      print('Error getting storage space: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+    final progressColor = isDarkMode ? Colors.white : Colors.black;
+    final backgroundColor = isDarkMode ? const Color(0xFF333333) : const Color(0xFFE0E0E0);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SwipeClean'),
+        title: const Text('Accueil'),
+        actions: [
+          IconButton(
+            icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () => themeProvider.toggleTheme(),
+          ),
+          IconButton(
+            icon: const Icon(Icons.photo_album),
+            onPressed: () => context.go('/albums'),
+          ),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            if (_totalSpace != null && _freeSpace != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Device Storage',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: (_totalSpace! - _freeSpace!) / _totalSpace!,
-                    minHeight: 10,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${(_totalSpace! - _freeSpace!).toStringAsFixed(2)} GB used of ${_totalSpace!.toStringAsFixed(2)} GB',
-                  ),
-                ],
-              )
-            else
-              const Center(child: CircularProgressIndicator()),
-            const SizedBox(height: 32),
             Text(
-              'Categories',
+              'Stockage de l'appareil',
               style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: <Widget>[
-                  _buildCategoryCard(
-                    context,
-                    'Screenshots',
-                    Icons.screenshot,
-                    () => context.go('/swipe/screenshots'),
-                  ),
-                  _buildCategoryCard(
-                    context,
-                    'Videos',
-                    Icons.videocam,
-                    () => context.go('/swipe/videos'),
-                  ),
-                  _buildCategoryCard(
-                    context,
-                    'All Photos',
-                    Icons.photo,
-                    () => context.go('/swipe/all'),
-                  ),
-                ],
+            const SizedBox(height: 24),
+            _buildStorageIndicator(
+              'Stockage total',
+              _usedSpace,
+              _totalSpace,
+              '${_usedSpace.toStringAsFixed(2)} Go utilisés sur ${_totalSpace.toStringAsFixed(2)} Go',
+              progressColor,
+              backgroundColor,
+            ),
+            const SizedBox(height: 32),
+            _buildStorageIndicator(
+              'Espace libéré ce mois-ci',
+              _cleanedSpaceThisMonth,
+              _totalSpace, // Using total space as a reference for now
+              '${_cleanedSpaceThisMonth.toStringAsFixed(2)} Go libérés',
+              Colors.green,
+              backgroundColor,
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: () => context.go('/swipe'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+              child: const Text('Commencer le Swipe'),
             ),
+            const SizedBox(height: 48),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCategoryCard(
-      BuildContext context, String title, IconData icon, VoidCallback onTap) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(icon, size: 50),
-            const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-          ],
+  Widget _buildStorageIndicator(
+    String title,
+    double value,
+    double total,
+    String subtitle,
+    Color progressColor,
+    Color backgroundColor,
+  ) {
+    double percent = total > 0 ? value / total : 0;
+    return Column(
+      children: [
+        Text(title, style: Theme.of(context).textTheme.bodyMedium),
+        const SizedBox(height: 8),
+        LinearPercentIndicator(
+          percent: percent,
+          lineHeight: 12.0,
+          barRadius: const Radius.circular(6),
+          progressColor: progressColor,
+          backgroundColor: backgroundColor,
         ),
-      ),
+        const SizedBox(height: 8),
+        Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 }
