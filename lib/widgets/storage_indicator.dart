@@ -26,7 +26,7 @@ class StorageIndicator extends StatelessWidget {
           value: percentage,
           minHeight: 12,
           borderRadius: BorderRadius.circular(6),
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withAlpha(51),
           valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
         const SizedBox(height: 4),

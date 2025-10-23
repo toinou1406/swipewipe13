@@ -66,7 +66,6 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
 
   void _onPanEnd(DragEndDetails details) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     final velocity = details.velocity.pixelsPerSecond;
 
     if (velocity.dx.abs() > 800 || _dragOffset.dx.abs() > screenWidth * 0.5) {
@@ -80,8 +79,8 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
 
   void _triggerSwipe(SwipeDirection direction) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final targetX = direction == SwipeDirection.left ? -screenWidth : (direction == SwipeDirection.right ? screenWidth : 0);
-    final targetY = direction == SwipeDirection.up ? -500.0 : (direction == SwipeDirection.down ? 500.0 : 0);
+    final double targetX = direction == SwipeDirection.left ? -screenWidth : (direction == SwipeDirection.right ? screenWidth : 0);
+    final double targetY = direction == SwipeDirection.up ? -500.0 : (direction == SwipeDirection.down ? 500.0 : 0);
 
     _slideAnimation = Tween<Offset>(
       begin: _dragOffset,
@@ -135,9 +134,11 @@ class _SwipeScreenState extends State<SwipeScreen> with TickerProviderStateMixin
       final size = await file.length();
       await file.delete();
       _deletionService.recordDeletion(size);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Photo supprimée définitivement.'), duration: Duration(seconds: 2)));
     } catch (e) {
       debugPrint("Failed to delete photo: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur lors de la suppression.'), backgroundColor: Colors.red));
     }
   }

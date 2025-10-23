@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(
         seedColor: primarySeedColor,
         brightness: Brightness.dark,
-        background: Colors.black,
+        surface: Colors.black,
       ),
       scaffoldBackgroundColor: Colors.black,
       textTheme: appTextTheme.apply(bodyColor: Colors.white, displayColor: Colors.white),
@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.black,
-          backgroundColor: primarySeedColor.shade200,
+          backgroundColor: primarySeedColor.shade100,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w500),
